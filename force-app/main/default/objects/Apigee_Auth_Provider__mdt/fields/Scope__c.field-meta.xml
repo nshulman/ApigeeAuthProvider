@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Scope__c</fullName>
-    <encrypted>false</encrypted>
+    <description>Apigee scope (optional).  Scope can be left blank in related Named Credential and will not be used.</description>
+    <inlineHelpText>Apigee scope (optional).  Scope can be left blank in related Named Credential and will not be used.</inlineHelpText>
+    <encryptionScheme>None</encryptionScheme>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <isCaseInsensitiveDeterministicEncryptionEnabled>false</isCaseInsensitiveDeterministicEncryptionEnabled>
-    <isCaseSensitiveDeterministicEncryptionEnabled>false</isCaseSensitiveDeterministicEncryptionEnabled>
     <label>Scope</label>
     <length>255</length>
     <required>false</required>

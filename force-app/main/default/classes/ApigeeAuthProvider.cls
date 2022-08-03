@@ -25,6 +25,8 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     public static final String CMT_FIELD_CLIENT_SECRET = 'Client_Secret__c';
     public static final String CMT_FIELD_USE_JSON = 'Use_JSON_Encoding__c';
     public static final String CMT_FIELD_SCOPE = 'Scope__c';
+    public static final String CMT_FIELD_ENCRYPT = 'Encrypt__c';
+    public static final String CMT_FIELD_NAMED_CRED = 'Named_Credential_Endpoint__c';
 
     public static final String GRANT_TYPE_PARAM = 'grant_type';
     public static final String CLIENT_ID_PARAM = 'client_id';
@@ -59,7 +61,6 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     **/
     public PageReference initiate(Map<string,string> config, String stateToPropagate) {
         System.debug('initiate');
-
         final PageReference pageRef = new PageReference(getCallbackUrl(config)); //NOSONAR
         pageRef.getParameters().put('state',stateToPropagate);
         pageRef.getParameters().put('code',DUMMY_CODE); // Empirically found this is required, but unused
@@ -75,7 +76,6 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         // https://{salesforce-hostname}/services/authcallback/{urlsuffix}
         final String overrideUrl = config.get(CMT_FIELD_CALLBACK_URL);
         final String generatedUrl = URL.getSalesforceBaseUrl().toExternalForm() + RESOURCE_CALLBACK + config.get('Auth_Provider_Name__c');
-
         return String.isEmpty(overrideUrl) ? generatedUrl : overrideUrl;
     }
     
@@ -95,9 +95,10 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         if (response.isError()) {
             throw new TokenException(response.getErrorMessage());
         }
+        System.debug('refresh' + response);
         return new Auth.AuthProviderTokenResponse(config.get(CMT_FIELD_PROVIDER_NAME)
                                                   , response.access_token
-                                                  , config.get(CMT_FIELD_CLIENT_SECRET) // No Refresh Token
+                                                  , response.access_token // No Refresh Token, but access_token or client secret works
                                                   , state.queryParameters.get('state'));
     } 
     
@@ -146,27 +147,37 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
      private TokenResponse retrieveToken(Map<String,String> config) {
          
         System.debug('retrieveToken');
-
-        final Boolean useJSONEncoding = Boolean.valueOf(config.get(CMT_FIELD_USE_JSON));
+        System.debug('config: ' + config);
         
-        final HttpRequest req = new HttpRequest();
+        final String namedCredential = config.get(CMT_FIELD_NAMED_CRED);
+        final Boolean useNamedCredential = !String.isEmpty(namedCredential);
+        final Boolean useJSONEncoding = Boolean.valueOf(config.get(CMT_FIELD_USE_JSON));
+        final String encoding = useJSONEncoding ? ENCODING_JSON : ENCODING_XML;
 
-        final PageReference endpoint = new PageReference(config.get(CMT_FIELD_AUTHTOKEN_URL)); //NOSONAR -- Protected by RemoteSite Setting
+        final HttpRequest req = new HttpRequest();
+        // Common HttpRequest setup
+        req.setMethod('POST');
+        System.debug('Content-Type:' + encoding);
+        req.setHeader('Content-Type',encoding);
+        PageReference endpoint;
+
+        if (useNamedCredential) {
+            // Use URL, Username (as Client Id) and Password (as Client Secret) from Named Credential if specified
+            final String namedCredEndpoint = 'callout:' + namedCredential;
+            endpoint = new PageReference(namedCredEndpoint);
+        } else {
+            // Use URL, Client ID and Client Secret from Auth Provider Config
+            endpoint = new PageReference(config.get(CMT_FIELD_AUTHTOKEN_URL));
+        }
+        
+        System.debug('Endpoint: ' + endpoint.getUrl());
         if (!useJSONEncoding) { // Including the Query String breaks JSON encoded OAuth
-            endpoint.getParameters().put('grant_type',GRANT_TYPE_CLIENT_CREDS);            
+            endpoint.getParameters().put(GRANT_TYPE_PARAM, GRANT_TYPE_CLIENT_CREDS);
         }
 
+        req.setEndpoint(endpoint.getUrl());
         // Determine whether or not to use JSON encoding
-        final String encoding = useJSONEncoding ? ENCODING_JSON : ENCODING_XML;
-        final String encodedParams = encodeParameters(config,encoding);
-
-        System.debug('Endpoint: ' + endpoint.getUrl());
-        System.debug('Content-Type:' + encoding);
-        //System.debug('Body:' + encodedParams);
-
-        req.setEndpoint(endpoint.getUrl()); 
-        req.setHeader('Content-Type',encoding); 
-        req.setMethod('POST'); 
+        final String encodedParams = encodeParameters(config, encoding, useNamedCredential);
         req.setBody(encodedParams);
 
         final HTTPResponse res = new Http().send(req); 
@@ -205,13 +216,26 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         Conditionally encode parameters as URL-style or JSON
     **/
     @testVisible
-    private String encodeParameters(Map<String,String> config,String encoding) {
+    private String encodeParameters(Map<String,String> config, String encoding, Boolean useNamedCredential) {
 
+        System.debug('Encode Parameters');
         // Pull out the subset of configured parameters that will be sent
         Map<String,String> params = new Map<String,String>();
+        if (!String.isEmpty(config.get(CMT_FIELD_NAMED_CRED))) {
+            params.put('named_cred', config.get(CMT_FIELD_NAMED_CRED));
+        }
+
         params.put(GRANT_TYPE_PARAM,GRANT_TYPE_CLIENT_CREDS);
-        params.put(CLIENT_ID_PARAM, config.get(CMT_FIELD_CLIENT_ID));
-        params.put(CLIENT_SECRET_PARAM, config.get(CMT_FIELD_CLIENT_SECRET));
+        if (useNamedCredential) {
+            // Use the values from the Named Credential Body Merge Fields - this must be checked in the named credential
+            params.put(CLIENT_ID_PARAM, '{!$Credential.UserName}');
+            params.put(CLIENT_SECRET_PARAM, '{!$Credential.Password}');
+        } else {
+            params.put(CLIENT_ID_PARAM, config.get(CMT_FIELD_CLIENT_ID));
+            params.put(CLIENT_SECRET_PARAM, config.get(CMT_FIELD_CLIENT_SECRET));
+        }
+        
+        // Follow the same pattern as Scope to add additional fields to the authorization request
         final String scope = config.get(CMT_FIELD_SCOPE);
         if (!String.isEmpty(scope)) {
             params.put(SCOPE_PARAM,scope);
@@ -285,7 +309,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         public String scope {get;set;}
         public String expires_in {get;set;}
         public String refresh_count {get;set;}
-        public String status {get;set;}
+        public String status {get;set;}        
 
         // Apigee Edge -- hosted version uses these fields for error handling
         public String ErrorCode {get; set;}
