@@ -245,7 +245,7 @@ public class ApigeeAuthProviderTest {
     static testmethod void testEncodingAsJSON() {
         final Map<String,String> config = setupAuthProviderConfig();
 
-        final String output = new ApigeeAuthProvider().encodeParameters(config,ApigeeAuthProvider.ENCODING_JSON);
+        final String output = new ApigeeAuthProvider().encodeParameters(config,ApigeeAuthProvider.ENCODING_JSON,false);
         System.debug('encoded jSON: ' + output);
 
         // Assert that we deserialize parse the output as JSON

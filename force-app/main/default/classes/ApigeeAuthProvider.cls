@@ -25,7 +25,6 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     public static final String CMT_FIELD_CLIENT_SECRET = 'Client_Secret__c';
     public static final String CMT_FIELD_USE_JSON = 'Use_JSON_Encoding__c';
     public static final String CMT_FIELD_SCOPE = 'Scope__c';
-    public static final String CMT_FIELD_ENCRYPT = 'Encrypt__c';
     public static final String CMT_FIELD_NAMED_CRED = 'Named_Credential_Endpoint__c';
 
     public static final String GRANT_TYPE_PARAM = 'grant_type';
@@ -91,14 +90,16 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     public Auth.AuthProviderTokenResponse handleCallback(Map<string,string> config, Auth.AuthProviderCallbackState state ) {
         System.debug('handleCallback');
         final TokenResponse response = retrieveToken(config);
-
         if (response.isError()) {
             throw new TokenException(response.getErrorMessage());
         }
         System.debug('refresh' + response);
+        // We don't have a refresh token and may not have the Client Secret here, 
+        // but we do have a fresh access token - so the oAuthSecretOrRefreshToken
+        // can be anything (dummy code in this case)
         return new Auth.AuthProviderTokenResponse(config.get(CMT_FIELD_PROVIDER_NAME)
                                                   , response.access_token
-                                                  , response.access_token // No Refresh Token, but access_token or client secret works
+                                                  , DUMMY_CODE
                                                   , state.queryParameters.get('state'));
     } 
     
