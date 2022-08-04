@@ -1,4 +1,4 @@
-# ApigeeAuthProvider (Fork with Named Credential Secret Support)<br/>
+# ApigeeAuthProvider (Fork with Named Credential Secret Support)
 
 ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support an OAuth connection to an Apigee endpoint. The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in encryption and hiding the value.
 
@@ -10,17 +10,17 @@ ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support 
 
 ## Using ApigeeAuthProvider
 
-1. Deploy the code to your dev environment (scratch org or sandbox)
+1. Deploy the code to your dev environment
 
-### Scratch Org<br/>
+### Scratch Org
 
-sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg<br/>
-sfdx force:source:push -u MyScratchOrg<br/>
+sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg
+sfdx force:source:push -u MyScratchOrg
 
-### Sandbox<br/>
+### Sandbox
 
-sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider<br/>
-sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest<br/>
+sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider
+sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest
 
 2. Create an Auth Provider
 - Open Setup -> Security -> Auth. Providers
@@ -46,9 +46,20 @@ sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r A
 - Store the Client Secret in the **Password** field
 - Under Callout Options, check **Allow Merge Fields in HTTP Body**.  Do not check any other options.
 
-3. Create a Named Credential for your Apigee Endpoint *note - this is NOT the Authorization endpoint, this is where you will make your API calls*
+3. Create a Named Credential for your Apigee Endpoint *this is NOT the Authorization endpoint, this is where you will make your API calls*
 - Open Setup -> Security -> Named Credentials
-- 
+- Select New Named Credential
+- Fill out Label and Name (e.g. ApigeeEval)
+- Enter the API Endpoint URL in the URL field *this is NOT the auth endpoint*
+- Set Identity Type to Named Principal
+- Set Authentication Protocal to OAuth 2.0
+- Set Authentication Provider to the ApigeeAuthProvider you created in step 2
+- Leave Scope blank - this is ignored by ApigeeAuthProvider
+- Check Start Authentication Flow on Save
+- Under Callout Options, only **Generate Authorization Header** should be checked
+- Click Save.  If this is successful, the Authentication Status will be **Authorized**
+
+Good luck!
 
 ## FAQ
 
