@@ -17,7 +17,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     public static final String DOUBLEQUOTE = '"';
 
     // This class is dependant on this Custom Metadata Type created to hold custom parameters
-    public static final String CUSTOM_MDT_NAME = 'Apigee_Auth_Provider__mdt'; 
+    public static final String CUSTOM_MDT_NAME = 'Apigee_Auth_Provider__mdt';
     public static final String CMT_FIELD_CALLBACK_URL = 'Callback_URL__c';
     public static final String CMT_FIELD_PROVIDER_NAME = 'Auth_Provider_Name__c';
     public static final String CMT_FIELD_AUTHTOKEN_URL = 'Access_Token_URL__c';
@@ -42,8 +42,8 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         super();
         System.debug('Constructor called');
     }
-    
-    
+
+
     /**
         Name of custom metadata type to store this auth provider configuration fields
         This method is required by its abstract parent class.
@@ -51,11 +51,11 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
     **/
     public String getCustomMetadataType() {
         return CUSTOM_MDT_NAME;
-    } 
-    
+    }
+
     /**
     Initiate callback. No End User authorization required in this flow so skip straight to the Token request.
-    The interface requires the callback url to be defined. 
+    The interface requires the callback url to be defined.
     Eg: https://test.salesforce.com/services/authcallback/<authprovidername>
     **/
     public PageReference initiate(Map<string,string> config, String stateToPropagate) {
@@ -65,7 +65,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         pageRef.getParameters().put('code',DUMMY_CODE); // Empirically found this is required, but unused
         System.debug(pageRef.getUrl());
         return pageRef;
-    } 
+    }
 
     /**
       This method composes the callback URL automatically UNLESS it has been overridden through Configuration.
@@ -77,15 +77,15 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         final String generatedUrl = URL.getSalesforceBaseUrl().toExternalForm() + RESOURCE_CALLBACK + config.get('Auth_Provider_Name__c');
         return String.isEmpty(overrideUrl) ? generatedUrl : overrideUrl;
     }
-    
+
     /**
     Handle callback (from initial loop back "code" step in the flow).
     In the Client Credentials flow, this method retrieves the access token directly.
 
     Required by parent class.
 
-    Error handling here is a bit painful as the UI never displays the exception or error message 
-    supplied here.  The exception is thrown for Logging/Debugging purposes only. 
+    Error handling here is a bit painful as the UI never displays the exception or error message
+    supplied here.  The exception is thrown for Logging/Debugging purposes only.
     **/
     public Auth.AuthProviderTokenResponse handleCallback(Map<string,string> config, Auth.AuthProviderCallbackState state ) {
         System.debug('handleCallback');
@@ -94,15 +94,16 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
             throw new TokenException(response.getErrorMessage());
         }
         System.debug('refresh' + response);
-        // We don't have a refresh token and may not have the Client Secret here, 
-        // but we do have a fresh access token - so the oAuthSecretOrRefreshToken
+
+        // We don't have a refresh token and may not have the Client Secret here,
+        // when named credentials are used - so the oAuthSecretOrRefreshToken
         // can be anything (dummy code in this case)
         return new Auth.AuthProviderTokenResponse(config.get(CMT_FIELD_PROVIDER_NAME)
                                                   , response.access_token
                                                   , DUMMY_CODE
                                                   , state.queryParameters.get('state'));
-    } 
-    
+    }
+
     /**
         Refresh is required by the parent class and it's used if the original Access Token has expired.
         In the Client Credentials flow, there is no Refresh token, so its implementation is exactly the
@@ -114,7 +115,6 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         return new Auth.OAuthRefreshResult(response.access_token, response.token_type);
     }
 
-       
     /**
         getUserInfo is required by the Parent class, but not fully supported by this provider.
         Effectively the Client Credentials flow is only useful for Server-to-Server API integrations
@@ -137,19 +137,17 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
             , null // siteLoginUrl
             , new Map<String,String>());
 
-
         return userData;
     }
-    
-    
+
     /**
        Private method that gets the Auth Token using the Client Credentials Flow.
     **/
      private TokenResponse retrieveToken(Map<String,String> config) {
-         
+
         System.debug('retrieveToken');
         System.debug('config: ' + config);
-        
+
         final String namedCredential = config.get(CMT_FIELD_NAMED_CRED);
         final Boolean useNamedCredential = !String.isEmpty(namedCredential);
         final Boolean useJSONEncoding = Boolean.valueOf(config.get(CMT_FIELD_USE_JSON));
@@ -170,7 +168,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
             // Use URL, Client ID and Client Secret from Auth Provider Config
             endpoint = new PageReference(config.get(CMT_FIELD_AUTHTOKEN_URL));
         }
-        
+
         System.debug('Endpoint: ' + endpoint.getUrl());
         if (!useJSONEncoding) { // Including the Query String breaks JSON encoded OAuth
             endpoint.getParameters().put(GRANT_TYPE_PARAM, GRANT_TYPE_CLIENT_CREDS);
@@ -181,7 +179,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         final String encodedParams = encodeParameters(config, encoding, useNamedCredential);
         req.setBody(encodedParams);
 
-        final HTTPResponse res = new Http().send(req); 
+        final HTTPResponse res = new Http().send(req);
 
         System.debug('Token Response Status: ' + res.getStatus() + ' ' + res.getStatusCode());
         final Integer statusCode = res.getStatusCode();
@@ -195,21 +193,19 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         } else  {
             return deserializeToken(res.getBody());
         }
-
     }
-    
+
     //deserialise response and return token
     @testVisible
     private TokenResponse deserializeToken(String responseBody) {
-        
+
         System.debug('token response:' +responseBody);
-        
         // use default parsing for everything we can.
         TokenResponse parsedResponse = (TokenResponse) System.JSON.deserialize(responseBody, TokenResponse.class);
         // explicitly parse out the developer.email property because it's an illegal identifier
         Map<String,Object> props = (Map<String,Object>) System.JSON.deserializeUntyped(responseBody);
         parsedResponse.developer_email = (String) props.get('developer.email');
-       
+
         return parsedResponse;
     }
 
@@ -235,7 +231,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
             params.put(CLIENT_ID_PARAM, config.get(CMT_FIELD_CLIENT_ID));
             params.put(CLIENT_SECRET_PARAM, config.get(CMT_FIELD_CLIENT_SECRET));
         }
-        
+
         // Follow the same pattern as Scope to add additional fields to the authorization request
         final String scope = config.get(CMT_FIELD_SCOPE);
         if (!String.isEmpty(scope)) {
@@ -288,7 +284,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
 
     On failure, the following structure from Apigee Edge (cloud hosted Gateway)
 
-    { 
+    {
       "ErrorCode" : "invalid_client"
     , "Error" : "Client credentials are invalid"
     }
@@ -310,7 +306,7 @@ public class ApigeeAuthProvider extends Auth.AuthProviderPluginClass{
         public String scope {get;set;}
         public String expires_in {get;set;}
         public String refresh_count {get;set;}
-        public String status {get;set;}        
+        public String status {get;set;}
 
         // Apigee Edge -- hosted version uses these fields for error handling
         public String ErrorCode {get; set;}

@@ -6,7 +6,6 @@
     <inlineHelpText>Oauth client id, also known as Consumer Key</inlineHelpText>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <inlineHelpText>Oauth client id, also known as Consumer Key</inlineHelpText>
     <label>Client Id</label>
     <length>255</length>
     <required>false</required>
