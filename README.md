@@ -1,4 +1,4 @@
-# ApigeeAuthProvider (Fork with Nathan's mods)<br/>
+# ApigeeAuthProvider (Fork with Named Credential Secret Support)<br/>
 
 ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support an OAuth connection to an Apigee endpoint.  The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in encryption and hiding the value.
 
