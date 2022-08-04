@@ -3,6 +3,7 @@
     <fullName>Use_JSON_Encoding__c</fullName>
     <defaultValue>false</defaultValue>
     <description>Should the OAuth Flow encode the Request Parameters as JSON?</description>
+    <inlineHelpText>Should the OAuth Flow encode the Request Parameters as JSON?</inlineHelpText>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Use JSON Encoding</label>

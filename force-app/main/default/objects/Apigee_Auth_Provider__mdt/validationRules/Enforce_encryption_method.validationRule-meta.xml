@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enforce_encryption_method</fullName>
+    <active>true</active>
+    <description>Ensures named credential OR token, client ID, client secret are filled out.  Only one approach is valid.</description>
+    <errorConditionFormula>AND(!ISBLANK( Named_Credential_Endpoint__c ),
+OR(!ISBLANK(Access_Token_URL__c), !ISBLANK(Client_Secret__c), !ISBLANK(Client_Id__c)))</errorConditionFormula>
+    <errorMessage>Use either the field Named Credential Client for using encrypted client secret  OR the fields Token, Client Secret and Client Id to store an unencrypted secret</errorMessage>
+</ValidationRule>

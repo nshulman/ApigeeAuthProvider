@@ -15,3 +15,4 @@ sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r A
 When configuring the AuthProvider, make sure that you set Name and URL Suffix to the same value!  If you don't then you must override the Callback URL.  See https://github.com/bobbywhitesfdc/ApigeeAuthProvider/issues/1
 
 
+Be sure to set any endpoint or authorization URL in Remote Site Settings.  If Remote Site Settings are not correct, you will see the following error when saving your named credential: "Problem Logging in - We can't log you in because of the following error.  For more information, contact your Salesforce administrator.  Remote_Error: The remote service returned an error"
