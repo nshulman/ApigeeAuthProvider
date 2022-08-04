@@ -11,16 +11,17 @@ ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support 
 ## Using ApigeeAuthProvider
 
 1. Deploy the code to your dev environment
-
-### Scratch Org
-
-sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg
-sfdx force:source:push -u MyScratchOrg
-
-### Sandbox
-
-sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider
-sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest
+>**Scratch Org**
+>
+>`sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg`
+>
+>`sfdx force:source:push -u MyScratchOrg`
+>
+>**Sandbox**
+>
+>`sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider`
+>
+>`sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest`
 
 2. Create an Auth Provider
 - Open Setup -> Security -> Auth. Providers
@@ -36,9 +37,9 @@ sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r A
 - If a Named Credential will be used for the auth endpoint, follow the steps below and use the developer name (e.g. ApigeeEval_AuthEndpoint)
 - The additional fields can be left blank, unless they are needed for your implementation
 
-### Optional: Using a Named Credential to store the Authorization Endpoint secrets:
+*Optional: Using a Named Credential to store the Authorization Endpoint secrets:*
 - Open Setup -> Security -> Named Credentials
-- Create a new named credential
+- Create New
 - Set the URL field to the Apigee authorization endpoint. **Be sure to also add this URL to remote site settings.**
 - Set Identity Type to Named Principal
 - Set Authentication Protocol to Password Authentication
@@ -46,20 +47,19 @@ sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r A
 - Store the Client Secret in the **Password** field
 - Under Callout Options, check **Allow Merge Fields in HTTP Body**.  Do not check any other options.
 
-3. Create a Named Credential for your Apigee Endpoint *this is NOT the Authorization endpoint, this is where you will make your API calls*
+3. Create a Named Credential for your Apigee Endpoint *(NOT the Authorization endpoint, this is where you will make your API calls)*
 - Open Setup -> Security -> Named Credentials
 - Select New Named Credential
 - Fill out Label and Name (e.g. ApigeeEval)
-- Enter the API Endpoint URL in the URL field *this is NOT the auth endpoint*
+- Enter the API Endpoint URL *(NOT the auth endpoint)* in the URL field  **Be sure to also add this URL to remote site settings.**
 - Set Identity Type to Named Principal
 - Set Authentication Protocal to OAuth 2.0
-- Set Authentication Provider to the ApigeeAuthProvider you created in step 2
+- Set Authentication Provider to the Auth Provider you created in step 2 (should be type ApigeeAuthProvider)
 - Leave Scope blank - this is ignored by ApigeeAuthProvider
-- Check Start Authentication Flow on Save
+- Check **Start Authentication Flow on Save**
 - Under Callout Options, only **Generate Authorization Header** should be checked
-- Click Save.  If this is successful, the Authentication Status will be **Authorized**
+- Click Save.  If this is successful, the Authentication Status will be **Authenticated**.  If you see Pending, then Authentication failed.
 
-Good luck!
 
 ## FAQ
 
