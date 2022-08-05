@@ -36,7 +36,7 @@ This is a modified version of the original by Bobby White and has not been fully
 - Fill out Client Id (e.g. 123abcde-12ab-123de) - **leave blank if using named credential**
 - Fill out Client Secret - **leave blank if using named credential**
 - Fill out Scope here if you have an application Scope.  *note: this is the only Scope used by ApigeeAuthProvider, the Scope value in the Named Credential will not be used*
-- If a Named Credential will be used for the auth endpoint, follow the steps below and use the developer name (e.g. ApigeeEval_AuthEndpoint)
+- If a Named Credential will be used for the auth endpoint, follow the steps below and use the developer name (e.g. ApigeeEval_AuthEndpoint).  Otherwise, leave this field blank.
 - The additional fields can be left blank, unless they are needed for your implementation
 
 *Optional: Using a Named Credential to store the Authorization Endpoint secrets:*
@@ -67,3 +67,5 @@ This is a modified version of the original by Bobby White and has not been fully
 When configuring the AuthProvider, make sure that you set Name and URL Suffix to the same value! If you don't, then you must override the Callback URL. See https://github.com/bobbywhitesfdc/ApigeeAuthProvider/issues/1
 
 Be sure to set any endpoint or authorization URL in Remote Site Settings. If Remote Site Settings are not correct, you will see the following error when saving your named credential: "Problem Logging in - We can't log you in because of the following error. For more information, contact your Salesforce administrator. Remote_Error: The remote service returned an error"
+
+The Custom Fields stored by this plugin, although visible and editable in the Auth. Provider screen in setup are stored as Custom Metadata records, and can also be seen in Custom Metadata.  Although these Custom Metadata records may be modified directly, it is best to let the Auth. Provider screen manage this record and values.  Basically, don't be surprised when you see a record in Custom Metadata that looks exactly like your Auth. Provider values - they're just passed through to one screen.
