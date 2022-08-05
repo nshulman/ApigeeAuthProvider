@@ -8,7 +8,7 @@ ApigeeAuthProvider is an Auth Provider Plugin for Salesforce (a.k.a. [AuthProvid
 - Added support for using an optional Named Credential to store encrypted, hidden Client Secret value
 - Added custom field to support [OAuth2 Scope](https://docs.apigee.com/api-platform/security/oauth/working-scopes)
 
-This is a modified version of the original by Bobby White and has not been fully regression tested. This has been tested with both Named Credentials and the original approach of using Auth Provider custom fields.  However, if you do not intend to use Named Credentials to store endpoint information, please consider using the original version: https://github.com/bobbywhitesfdc/ApigeeAuthProvider.  Many thanks to Bobby for the idea for the approach, spec writeup and assistance with challenges encountered while making the updates.
+This is a modified version of the original by Jerry Huang and Bobby White and has not been fully regression tested. This has been tested with both Named Credentials and the original approach of using Auth Provider custom fields.  However, if you do not intend to use Named Credentials to store endpoint information, please consider using the original version: https://github.com/bobbywhitesfdc/ApigeeAuthProvider.  Many thanks to Bobby for the idea for the approach, spec writeup and assistance with challenges encountered while making the updates.
 
 ## Using ApigeeAuthProvider
 
