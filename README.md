@@ -1,6 +1,6 @@
 # ApigeeAuthProvider Plug In (Nathan's Fork with Named Credential Secret Support)
 
-ApigeeAuthProvider is an Auth Provider Plugin for Salesforce (a.k.a. [AuthProviderPlugInClass](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_Auth_AuthProviderPluginClass.htm)) which adds support for the Apigee [Client Credentials grant type flow](https://docs.apigee.com/api-platform/security/oauth/oauth-20-client-credentials-grant-type) for authorization to a protected Apigee endpoint. The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in both encryption when storing the secret and hiding all visibility of the value.  Once stored, the Client Secret value can not be viewed in the Setup Auth. Provider UI, Custom Metadata, or extracted in Apex, since it is stored as a password and sent server to server using [Named Credential merge fields](https://developer.salesforce.com/docs/atlas.en-us.202.0.apexcode.meta/apexcode/apex_callouts_named_credentials.htm).
+ApigeeAuthProvider is an Auth Provider Plugin for Salesforce (a.k.a. [AuthProviderPlugInClass](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_Auth_AuthProviderPluginClass.htm)) which adds support for the Apigee [Client Credentials grant type flow](https://docs.apigee.com/api-platform/security/oauth/oauth-20-client-credentials-grant-type) for authorization and connection to a protected Apigee endpoint. The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in both encryption when storing the secret and hiding all visibility of the value.  Once stored, the Client Secret value can not be viewed in the Setup Auth. Provider UI, Custom Metadata, or extracted in Apex, since it is stored as a password and sent server to server using [Named Credential merge fields](https://developer.salesforce.com/docs/atlas.en-us.202.0.apexcode.meta/apexcode/apex_callouts_named_credentials.htm).
 
 ## Changes in this fork:
 - Updated API to 55
@@ -8,22 +8,23 @@ ApigeeAuthProvider is an Auth Provider Plugin for Salesforce (a.k.a. [AuthProvid
 - Added support for using an optional Named Credential to store encrypted, hidden Client Secret value
 - Added custom field to support [OAuth2 Scope](https://docs.apigee.com/api-platform/security/oauth/working-scopes)
 
-This is a modified version of the original by Jerry Huang and Bobby White and has not been fully regression tested. This has been tested with both Named Credentials and the original approach of using Auth Provider custom fields.  However, if you do not intend to use Named Credentials to store endpoint information, please consider using the original version: https://github.com/bobbywhitesfdc/ApigeeAuthProvider.  Many thanks to Bobby for the idea for the approach, spec writeup and assistance with challenges encountered while making the updates.
+This is a modified version of the original by Jerry Huang and Bobby White and has not been fully regression tested. This has been tested with both Named Credentials and the original approach of using Auth Provider custom fields.  However, if you do not intend to use Named Credentials to store endpoint information, please consider using the original version: https://github.com/bobbywhitesfdc/ApigeeAuthProvider.  Many thanks to Bobby White for the idea for the Named Credential and merge field approach, spec writeup and assistance with challenges encountered while making the updates.
 
 ## Using ApigeeAuthProvider
 
 1. Deploy the code to your dev environment
->**Scratch Org**
->
->`sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg`
->
->`sfdx force:source:push -u MyScratchOrg`
->
->**Sandbox**
->
->`sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider`
->
->`sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest`
+
+- **Scratch Org**
+```
+sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg
+sfdx force:source:push -u MyScratchOrg
+```
+
+- **Sandbox**
+```
+sfdx force:source:convert -d temp/ --packagename ApigeeAuthProvider
+sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r ApigeeAuthProviderTest
+```
 
 2. Create an Auth Provider
 - Open Setup -> Security -> Auth. Providers
@@ -62,7 +63,7 @@ This is a modified version of the original by Jerry Huang and Bobby White and ha
 - Under Callout Options, only **Generate Authorization Header** should be checked
 - Click Save.  If this is successful, the Authentication Status will be **Authenticated**.  If you see Pending, then Authentication failed.
 
-## PREVENTING COMMON ISSUES
+## Preventing Common Issues
 
 When configuring the AuthProvider, make sure that you set Name and URL Suffix to the same value! If you don't, then you must override the Callback URL. See https://github.com/bobbywhitesfdc/ApigeeAuthProvider/issues/1
 
