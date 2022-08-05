@@ -9,6 +9,7 @@ This is a modified version of the original by Bobby White and has not been fully
 - Updated API to 55
 - Removed deprecated tags that fail deployment
 - Added support for using an optional Named Credential to store encrypted, hidden Client Secret value
+- Added support for Scope
 
 ## Using ApigeeAuthProvider
 
