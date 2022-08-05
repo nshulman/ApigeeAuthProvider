@@ -1,6 +1,6 @@
 # ApigeeAuthProvider (Nathan's Fork with Named Credential Secret Support)
 
-ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support an OAuth connection to an Apigee endpoint. The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in encryption and hiding the value.
+ApigeeAuthProvider is an Auth Provider Plugin for Salesforce which will support an OAuth connection to an Apigee endpoint. The primary goal of this version is to enhance security by storing the endpoint's Client Secret in the password field of a Named Credential which results in encryption and hiding the value.  The Client Secret value can not be extracted in Apex, since it is sent server to server using [Named Credential merge fields](https://developer.salesforce.com/docs/atlas.en-us.202.0.apexcode.meta/apexcode/apex_callouts_named_credentials.htm).
 
 This is a modified version of the original by Bobby White and has not been fully regression tested. If you do not intend to use Named Credentials to store endpoint information, please consider using the original version: https://github.com/bobbywhitesfdc/ApigeeAuthProvider
 
@@ -61,7 +61,6 @@ This is a modified version of the original by Bobby White and has not been fully
 - Check **Start Authentication Flow on Save**
 - Under Callout Options, only **Generate Authorization Header** should be checked
 - Click Save.  If this is successful, the Authentication Status will be **Authenticated**.  If you see Pending, then Authentication failed.
-
 
 ## PREVENTING COMMON ISSUES
 
