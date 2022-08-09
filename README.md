@@ -56,7 +56,7 @@ sfdx force:mdapi:deploy -d temp/ -u "sandbox_username" -l RunSpecifiedTests -r A
 - Fill out Label and Name (e.g. ApigeeEval)
 - Enter the API Endpoint URL *(NOT the auth endpoint)* in the URL field  **Be sure to also add this URL to remote site settings.**
 - Set Identity Type to Named Principal
-- Set Authentication Protocal to OAuth 2.0
+- Set Authentication Protocol to OAuth 2.0
 - Set Authentication Provider to the Auth Provider you created in step 2 (should be type ApigeeAuthProvider)
 - Leave Scope blank - this is ignored by ApigeeAuthProvider
 - Check **Start Authentication Flow on Save**
